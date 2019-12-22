@@ -1,10 +1,18 @@
+#!/bin/bash
+
 # server backup
 
 # init
 RSYNCSRC='/var/www/html/nextcloud'
 RSYNCDEST='/home/backup-nextcloud'
 
-sudo mkdir $RSYNCDEST
+if [[ ! -d $RSYNCDEST ]]
+then
+	echo $RSYNCDEST n\'existe pas !
+	sudo mkdir $RSYNCDEST
+fi
+
+exit
 
 # mode maintenance
 sudo -u www-data php occ maintenance:mode --on
