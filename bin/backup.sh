@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # server backup
-# version 0.1
+# version 0.2
 
 # init
 RSYNCSRC='/var/www/html/nextcloud'
