@@ -1,30 +1,66 @@
 #!/bin/bash
 
 # server backup
-# version 0.2
 
 # init
+Log=0
+Debug=0
+
+[[ $Log > 0 ]] && printf "[Log($Log)] Demarrage\n" >&2
+
 RSYNCSRC='/var/www/html/nextcloud'
 RSYNCDEST='/home/backup-nextcloud'
 
 if [[ ! -d $RSYNCDEST ]]
 then
-	echo $RSYNCDEST n\'existe pas !
-	sudo mkdir $RSYNCDEST
+	echo $RSYNCDEST n\'existe pas ! >&2
+	if [ $Debug > 0 ]
+	then
+		printf "[Debug($Debug)] sudo mkdir $RSYNCDEST\n" >&2
+		mkdir $RSYNCDEST
+	fi
+else
+	[[ $Log > 0 ]] && printf "[Log($Log)] $RSYNCDEST existe\n" >&2
 fi
 
-exit
+# mode maintenance on
+if [[ $Debug > 0 ]]
+then
+	printf "[Debug($Debug)] sudo -u www-data php /var/www/html/nextcloud/occ maintenance:mode --on\n" >&2
+else
+	sudo -u www-data php /var/www/html/nextcloud/occ maintenance:mode --on >&2
+fi
 
-# mode maintenance
-sudo -u www-data php occ maintenance:mode --on
+BackupDate=`date +"%Y%m%d"`
+RSYNCDEST=$RSYNCDEST/nextcloud-dirbkp_$BackupDate
+
+[[ $Log > 0 ]] && printf "[Log($Log)] RSYNCDEST=$RSYNCDEST\n" >&2
 
 # copy the full nextcloud path
-rsync -Aavx "$RSYNCSRC/" $RSYNCDEST/nextcloud-dirbkp_`date +"%Y%m%d"`/
+if [[ $Debug > 0 ]]
+then
+	printf "[Debug($Debug)] sudo sh -c \"rsync -Aavx $RSYNCSRC/ $RSYNCDEST/ > $RSYNCDEST.lst\"\n" >&2
+else
+	sudo sh -c "rsync -Aavx $RSYNCSRC/ $RSYNCDEST/ > $RSYNCDEST.lst"
+fi
+
 
 # dump bdd
 
-mysqldump --single-transaction -h [server] -u [username] -p[password] [db_name] > $RSYNCDEST/nextcloud-sqlbkp_`date +"%Y%m%d"`.bak
+if [[ $Debug > 0 ]]
+then
+	printf "[Debug($Debug)] sudo sh -c \"mysqldump --single-transaction -u root nextcloud > $RSYNCDEST.bak\"\n" >&2
+else
+	sudo sh -c "mysqldump --single-transaction -u root nextcloud > $RSYNCDEST.bak"
+fi
 
+# mode maintenance off
+if [[ $Debug > 0 ]]
+then
+	printf "[Debug($Debug)] sudo -u www-data php /var/www/html/nextcloud/occ maintenance:mode --off\n" >&2
+else
+	sudo -u www-data php /var/www/html/nextcloud/occ maintenance:mode --off >&2
+fi
 
 # restore
 # rsync -Aax nextcloud-dirbkp/ nextcloud/
