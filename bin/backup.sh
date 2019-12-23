@@ -31,7 +31,8 @@ else
 	sudo -u www-data php /var/www/html/nextcloud/occ maintenance:mode --on >&2
 fi
 
-BackupDate=`date +"%Y%m%d"`
+#BackupDate=`date +"%Y%m%d"`
+BackupDate=`date +"%Y%m"`
 RSYNCDEST=$RSYNCDEST/nextcloud-dirbkp_$BackupDate
 
 [[ $Log > 0 ]] && printf "[Log($Log)] RSYNCDEST=$RSYNCDEST\n" >&2
