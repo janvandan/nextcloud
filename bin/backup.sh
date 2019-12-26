@@ -40,9 +40,9 @@ RSYNCDEST=$RSYNCDEST/nextcloud-dirbkp_$BackupDate
 # copy the full nextcloud path
 if [[ $Debug > 0 ]]
 then
-	printf "[Debug($Debug)] sudo sh -c \"rsync -Aavx $RSYNCSRC/ $RSYNCDEST/ >> $RSYNCDEST.lst\"\n" >&2
+	printf "[Debug($Debug)] sudo sh -c \"rsync -Aavx --delete $RSYNCSRC/ $RSYNCDEST/ >> $RSYNCDEST.lst\"\n" >&2
 else
-	sudo sh -c "rsync -Aavx $RSYNCSRC/ $RSYNCDEST/ >> $RSYNCDEST.lst"
+	sudo sh -c "rsync -Aavx --delete $RSYNCSRC/ $RSYNCDEST/ >> $RSYNCDEST.lst"
 fi
 
 
